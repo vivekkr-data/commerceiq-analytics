@@ -13,6 +13,9 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Local development-tool instructions.
+AGENTS.md
+
 # Raw source data is reproducible from the Olist Kaggle dataset.
 data/raw/*.csv
 

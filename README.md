@@ -87,6 +87,7 @@ flowchart LR
 
 ```text
 app/                       Streamlit entry point, pages, and components
+CONTRIBUTING.md            Data-design and validation standards
 data/raw/                  User-provided Olist CSVs (Git-ignored)
 data/processed/core/       Reproducible intermediate tables (Git-ignored)
 data/processed/dashboard/  Compact files used by the deployed dashboard
