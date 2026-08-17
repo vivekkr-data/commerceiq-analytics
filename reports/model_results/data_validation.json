@@ -1,0 +1,85 @@
+{
+  "tables": {
+    "customers": {
+      "rows": 99441,
+      "columns": 5,
+      "expected_rows": 99441,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 0
+    },
+    "orders": {
+      "rows": 99441,
+      "columns": 8,
+      "expected_rows": 99441,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 4908
+    },
+    "order_items": {
+      "rows": 112650,
+      "columns": 7,
+      "expected_rows": 112650,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 0
+    },
+    "payments": {
+      "rows": 103886,
+      "columns": 5,
+      "expected_rows": 103886,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 0
+    },
+    "reviews": {
+      "rows": 99224,
+      "columns": 7,
+      "expected_rows": 99224,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 145903
+    },
+    "products": {
+      "rows": 32951,
+      "columns": 9,
+      "expected_rows": 32951,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 2448
+    },
+    "sellers": {
+      "rows": 3095,
+      "columns": 4,
+      "expected_rows": 3095,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 0
+    },
+    "geolocation": {
+      "rows": 1000163,
+      "columns": 5,
+      "expected_rows": 1000163,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 261831,
+      "null_cells": 0
+    },
+    "category_translation": {
+      "rows": 71,
+      "columns": 2,
+      "expected_rows": 71,
+      "row_count_matches_reference": true,
+      "duplicate_rows": 0,
+      "null_cells": 0
+    }
+  },
+  "key_findings": {
+    "review_id_is_unique": false,
+    "review_order_id_is_unique": false,
+    "geolocation_zip_is_unique": false
+  },
+  "purchase_date_min": "2016-09-04 21:15:19",
+  "purchase_date_max": "2018-10-17 17:30:18",
+  "unique_customer_ids": 96096,
+  "repeat_identity_count": 2997
+}

@@ -1,0 +1,1 @@
+"""CommerceIQ Streamlit application."""

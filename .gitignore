@@ -1,0 +1,25 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Raw source data is reproducible from the Olist Kaggle dataset.
+data/raw/*.csv
+
+# Large reproducible intermediate tables; dashboard artifacts remain tracked.
+data/processed/core/
+data/exports/*.csv
+
+# Temporary runtime files.
+*.log
+.streamlit/secrets.toml

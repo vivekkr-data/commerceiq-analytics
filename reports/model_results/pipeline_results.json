@@ -1,0 +1,223 @@
+{
+  "validation": {
+    "tables": {
+      "customers": {
+        "rows": 99441,
+        "columns": 5,
+        "expected_rows": 99441,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 0
+      },
+      "orders": {
+        "rows": 99441,
+        "columns": 8,
+        "expected_rows": 99441,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 4908
+      },
+      "order_items": {
+        "rows": 112650,
+        "columns": 7,
+        "expected_rows": 112650,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 0
+      },
+      "payments": {
+        "rows": 103886,
+        "columns": 5,
+        "expected_rows": 103886,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 0
+      },
+      "reviews": {
+        "rows": 99224,
+        "columns": 7,
+        "expected_rows": 99224,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 145903
+      },
+      "products": {
+        "rows": 32951,
+        "columns": 9,
+        "expected_rows": 32951,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 2448
+      },
+      "sellers": {
+        "rows": 3095,
+        "columns": 4,
+        "expected_rows": 3095,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 0
+      },
+      "geolocation": {
+        "rows": 1000163,
+        "columns": 5,
+        "expected_rows": 1000163,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 261831,
+        "null_cells": 0
+      },
+      "category_translation": {
+        "rows": 71,
+        "columns": 2,
+        "expected_rows": 71,
+        "row_count_matches_reference": true,
+        "duplicate_rows": 0,
+        "null_cells": 0
+      }
+    },
+    "key_findings": {
+      "review_id_is_unique": false,
+      "review_order_id_is_unique": false,
+      "geolocation_zip_is_unique": false
+    },
+    "purchase_date_min": "2016-09-04 21:15:19",
+    "purchase_date_max": "2018-10-17 17:30:18",
+    "unique_customer_ids": 96096,
+    "repeat_identity_count": 2997
+  },
+  "kpis": {
+    "total_merchandise_revenue": 13221498.11,
+    "total_delivered_orders": 96478,
+    "unique_customers": 93358,
+    "average_order_value": 137.0415857501192,
+    "items_sold": 110197,
+    "average_review_score": 4.156186520855942,
+    "average_delivery_days": 12.558217098051975,
+    "late_delivery_rate": 0.08112366538820359,
+    "repeat_customer_rate": 0.031187562437562436,
+    "cancellation_rate": 0.012409368369183738
+  },
+  "segmentation": {
+    "selected_k": 2,
+    "silhouette": 0.7062215481006,
+    "customers_segmented": 93358
+  },
+  "delivery_risk": {
+    "selected_model": "Decision Tree",
+    "train_rows": 77176,
+    "test_rows": 19294,
+    "test_start": "2018-05-26 18:18:03",
+    "positive_rate_train": 0.08817508033585571,
+    "positive_rate_test": 0.05291800559759511,
+    "metrics": {
+      "model": "Decision Tree",
+      "accuracy": 0.7672851663729657,
+      "precision": 0.10426648414328085,
+      "recall": 0.4476003917727718,
+      "f1": 0.16913397483345669,
+      "roc_auc": 0.688484795274714,
+      "pr_auc": 0.12072841597023763,
+      "selected": true
+    },
+    "confusion_matrix": [
+      [
+        14347,
+        3926
+      ],
+      [
+        564,
+        457
+      ]
+    ]
+  },
+  "retention": {
+    "observation_start": "2016-09-15 12:16:38",
+    "observation_end": "2018-02-28 23:59:59",
+    "prediction_start": "2018-03-01 00:00:00",
+    "prediction_end": "2018-08-31 23:59:59",
+    "customers": 55525,
+    "positive_count": 654,
+    "negative_count": 54871,
+    "positive_rate": 0.011778478162989645,
+    "model_trained": true,
+    "metrics": {
+      "accuracy": 0.6016424146376603,
+      "precision": 0.016576576576576577,
+      "recall": 0.5609756097560976,
+      "f1": 0.032201610080504026,
+      "roc_auc": 0.6136758629395596,
+      "pr_auc": 0.03185263852111471
+    },
+    "train_rows": 41643,
+    "test_rows": 13882
+  },
+  "forecast": {
+    "selected_model": "Last Value Naive",
+    "complete_cutoff": "2018-08-01",
+    "excluded_partial_months": [
+      "2018-09-01",
+      "2018-10-01"
+    ],
+    "train_start": "2016-09-01",
+    "train_end": "2018-04-01",
+    "validation_start": "2018-05-01",
+    "validation_end": "2018-08-01",
+    "metrics": {
+      "model": "Last Value Naive",
+      "mae": 41682.46250000002,
+      "rmse": 62797.89632479999,
+      "mape": 0.04867609756184224,
+      "selected": true
+    }
+  },
+  "insights": [
+    {
+      "theme": "Scale",
+      "insight": "Delivered merchandise revenue was R$ 13,221,498.11 across 96,478 delivered orders."
+    },
+    {
+      "theme": "Category concentration",
+      "insight": "Health Beauty led categories with R$ 1,233,131.72, or 9.3% of delivered merchandise revenue."
+    },
+    {
+      "theme": "Geography",
+      "insight": "SP generated the most delivered merchandise revenue: R$ 5,067,633.16 (38.3% of total)."
+    },
+    {
+      "theme": "Customer retention",
+      "insight": "2,997 of 96,096 unique customers placed more than one order identity, a 3.12% repeat-customer rate."
+    },
+    {
+      "theme": "Delivery risk",
+      "insight": "8.11% of delivered orders with valid delivery dates arrived after the estimate."
+    },
+    {
+      "theme": "Satisfaction",
+      "insight": "Average review score was 4.16/5; on-time orders averaged 4.29 versus 2.57 for late orders. This is associative, not causal."
+    },
+    {
+      "theme": "Freight",
+      "insight": "Delivered freight totaled 16.6% of merchandise revenue, highlighting logistics as a material part of order value."
+    },
+    {
+      "theme": "Payments",
+      "insight": "Credit Card was the dominant method for 72,785 delivered orders."
+    },
+    {
+      "theme": "Seasonality",
+      "insight": "The highest complete-month revenue occurred in November 2017 at R$ 987,765.37."
+    },
+    {
+      "theme": "Seller concentration",
+      "insight": "The top 10 sellers contributed 13.3% of delivered merchandise revenue."
+    },
+    {
+      "theme": "Order outcomes",
+      "insight": "1,234 orders were canceled or unavailable (1.24% of all orders)."
+    },
+    {
+      "theme": "Delivery duration",
+      "insight": "Average delivery time for delivered orders was 12.6 days."
+    }
+  ],
+  "database_status": "not requested"
+}
