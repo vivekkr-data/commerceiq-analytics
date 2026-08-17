@@ -1,5 +1,7 @@
 # CommerceIQ Analytics
 
+[**Open the live Streamlit dashboard**](https://commerceiq-analytics-jmvryhiyknp63vqduy4y8t.streamlit.app/) · [**View the GitHub repository**](https://github.com/vivekkr-data/commerceiq-analytics)
+
 ## Overview
 
 **CommerceIQ Analytics — End-to-End E-Commerce Customer Intelligence & Predictive Analytics Platform** is a final-year data science, analytics, and data engineering project built on the Brazilian Olist marketplace dataset.
