@@ -78,6 +78,7 @@ def test_filtered_business_insights_use_only_selected_orders():
     by_theme = {row["theme"]: row["insight"] for row in insights}
 
     assert "R$ 150.00 across 2 delivered orders" in by_theme["Scale"]
+    assert "Art was the leading primary category" in by_theme["Primary category concentration"]
     assert "AM generated the most" in by_theme["Geography"]
     assert "1 of 1 unique customers" in by_theme["Customer retention"]
     assert "Credit Card" in by_theme["Payments"]

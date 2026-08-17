@@ -59,7 +59,13 @@ def render() -> None:
     )
     left, right = st.columns(2)
     with left:
-        figure = px.bar(category, x="merchandise_revenue", y="product_category", orientation="h", title="Revenue by Category")
+        figure = px.bar(
+            category,
+            x="merchandise_revenue",
+            y="product_category",
+            orientation="h",
+            title="Revenue by Primary Category",
+        )
         figure.update_traces(marker_color=PRIMARY)
         st.plotly_chart(style_figure(figure, 460), width="stretch")
     with right:

@@ -56,8 +56,8 @@ def generate_filtered_business_insights(order_level: pd.DataFrame) -> list[dict[
         top_category, top_category_revenue = category_revenue.index[0], float(category_revenue.iloc[0])
         insights.append(
             {
-                "theme": "Category concentration",
-                "insight": f"{top_category} led the selection with R$ {top_category_revenue:,.2f}, or {top_category_revenue / revenue:.1%} of merchandise revenue.",
+                "theme": "Primary category concentration",
+                "insight": f"{top_category} was the leading primary category with R$ {top_category_revenue:,.2f}, or {top_category_revenue / revenue:.1%} of merchandise revenue.",
             }
         )
     if not state_revenue.empty:

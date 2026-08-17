@@ -1,29 +1,26 @@
 # CommerceIQ Analytics
 
-[**Open the live Streamlit dashboard**](https://commerceiq-analytics-jmvryhiyknp63vqduy4y8t.streamlit.app/) · [**View the GitHub repository**](https://github.com/vivekkr-data/commerceiq-analytics)
+[**Live dashboard**](https://commerceiq-analytics-jmvryhiyknp63vqduy4y8t.streamlit.app/) · [**GitHub repository**](https://github.com/vivekkr-data/commerceiq-analytics)
 
-## Overview
+CommerceIQ Analytics is my final-year data science project based on the Brazilian Olist e-commerce dataset. I built it to practise the complete workflow behind an analytics product: validating raw files, designing grain-safe tables, writing business SQL, training and evaluating models, and presenting the results in a deployed Streamlit dashboard.
 
-**CommerceIQ Analytics — End-to-End E-Commerce Customer Intelligence & Predictive Analytics Platform** is a final-year data science, analytics, and data engineering project built on the Brazilian Olist marketplace dataset.
+The project uses nine source CSV files and produces reproducible analytical tables, PostgreSQL-ready data, saved machine-learning models, and compact dashboard artifacts. The public app reads only the prepared artifacts; it does not run ETL or train models when a user opens it.
 
-The repository turns nine raw CSV files into validated analytical tables, PostgreSQL-ready source tables, trained machine-learning models, compact Parquet artifacts, and a professional multipage Streamlit dashboard.
+## Business Questions
 
-## Business Problem
+The analysis focuses on practical marketplace questions:
 
-Marketplace teams need consistent answers about realized sales, durable customer identity, category and seller performance, delivery risk, satisfaction, repeat purchasing, and future revenue. Raw Olist tables have different grains: directly joining items, payments, and reviews inflates KPIs. CommerceIQ solves that problem with explicit aggregation contracts and reusable metrics.
-
-## Objectives
-
-- Build a reproducible raw-to-dashboard data pipeline.
-- Protect revenue, payment, review, customer, and geolocation grains.
-- Use `customer_unique_id` for durable customer analysis.
-- Deliver explainable segmentation, late-delivery prediction, retention feasibility analysis, forecasting, historical customer value, and recommendations.
-- Support optional PostgreSQL without making the public dashboard database-dependent.
-- Keep every reported metric traceable to generated artifacts.
+- How much delivered merchandise revenue did the marketplace generate?
+- Which product categories, customer states, and sellers contributed the most?
+- How many customers returned to make another purchase?
+- Which purchase-time features help identify late-delivery risk?
+- How are delivery outcomes associated with review scores?
+- What customer segments appear in RFM behaviour?
+- How well can monthly revenue be forecast with the available history?
 
 ## Dataset
 
-The supplied Olist data covers purchases from **2016-09-04 21:15:19** to **2018-10-17 17:30:18**.
+The data covers purchases from **2016-09-04 21:15:19** to **2018-10-17 17:30:18**.
 
 | Source | Rows | Grain / key |
 |---|---:|---|
@@ -31,97 +28,108 @@ The supplied Olist data covers purchases from **2016-09-04 21:15:19** to **2018-
 | Orders | 99,441 | `order_id` |
 | Order items | 112,650 | `order_id + order_item_id` |
 | Payments | 103,886 | `order_id + payment_sequential` |
-| Reviews | 99,224 | raw relationship; `review_id` alone is not unique |
+| Reviews | 99,224 | Raw relationship; `review_id` is not unique |
 | Products | 32,951 | `product_id` |
 | Sellers | 3,095 | `seller_id` |
-| Geolocation | 1,000,163 | repeated ZIP observations |
+| Geolocation | 1,000,163 | Repeated ZIP-prefix observations |
 | Category translations | 71 | Portuguese category name |
 
-There are **96,096** distinct `customer_unique_id` values. `customer_id` joins orders to customers; it must not be used as the long-term customer identity.
+The customer table contains **96,096** distinct `customer_unique_id` values. I use `customer_id` only to join an order to its customer record; repeat purchasing, RFM, customer value, and retention analysis use `customer_unique_id`.
 
-Raw CSVs are excluded from Git. Obtain the public Olist Brazilian E-Commerce dataset and place the nine files listed in `src/config.py` under `data/raw/` to reproduce the full pipeline.
+The raw CSV files are not stored in Git. To rebuild the project, place the nine Olist files listed in `src/config.py` inside `data/raw/`.
+
+## Data Design
+
+The main challenge in this dataset is that orders, items, payments, and reviews have different grains. Joining the raw tables directly would duplicate rows and inflate revenue or payment totals. The pipeline therefore aggregates order items, payments, and reviews independently to one row per order before joining them.
+
+Important metric definitions:
+
+- Delivered merchandise revenue is `SUM(order_items.price)` for delivered orders.
+- Freight is reported separately and is not included in merchandise revenue.
+- Payment value is kept as a separate financial measure.
+- Customer-level analysis uses `customer_unique_id`.
+- Review metrics use the order-level review aggregate.
+- Delivery-risk features are limited to information available at purchase or approval time.
+- The order-level primary category is the category of the highest-value line item, using price plus freight; item-level category analysis uses the original order-item rows.
+
+Geolocation is reduced to one representative row per ZIP prefix using median valid Brazilian coordinates and the most common city/state label.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[Raw Olist CSVs] --> B[Validation & Cleaning]
-    B --> C[Grain-Safe Aggregation]
-    C --> D[Analytical Tables]
-    D --> E[SQL / PostgreSQL]
-    D --> F[Feature Engineering]
-    F --> G[Machine Learning]
-    D --> H[Dashboard Artifacts]
+    A[Raw Olist CSVs] --> B[Validation and cleaning]
+    B --> C[Grain-safe aggregation]
+    C --> D[Analytical tables]
+    D --> E[SQL and PostgreSQL]
+    D --> F[Feature engineering]
+    F --> G[Machine-learning models]
+    D --> H[Dashboard artifacts]
     G --> H
-    H --> I[Streamlit Dashboard]
+    H --> I[Streamlit dashboard]
 ```
 
-Order items, payments, and reviews are aggregated separately to one row per order before they are joined. Geolocation is reduced to one representative row per ZIP prefix using median in-Brazil coordinates and the most common city/state label.
+## What Is Included
 
-## Key Features
-
-- Schema, key, date, null, duplicate, and row-count validation for nine raw sources.
-- Canonical delivered merchandise revenue, freight, gross order value, and amount-paid definitions.
-- Order-, customer-, category-, seller-, cohort-, monthly-sales-, and ZIP-level analytical tables.
-- RFM customer segmentation with K selection from Silhouette Score.
-- Chronological late-delivery classification with baseline and model comparison.
-- Temporal future-purchase feasibility experiment with explicit windows and class balance.
-- Chronological monthly revenue forecasting with partial-tail detection.
-- Historical customer value tiers and category co-purchase recommendations.
-- Thirty PostgreSQL business queries using CTEs, windows, ranking, aggregation, and safe joins.
-- Ten Streamlit pages with cached Parquet reads, filters, downloads, empty states, and persisted model loading.
-
-## Technology Stack
-
-Python, Pandas, NumPy, Matplotlib, Seaborn, Plotly, PostgreSQL, SQLAlchemy, Scikit-learn, Joblib, PyArrow, Streamlit, and Pytest.
+- Validation of schemas, keys, dates, row counts, nulls, and duplicates.
+- Order-, customer-, product-, seller-, cohort-, state-, payment-, ZIP-, and monthly-level outputs.
+- Reconciliation checks for merchandise revenue and payment totals.
+- Thirty PostgreSQL queries covering KPIs, growth, ranking, cohorts, delivery, reviews, payments, sellers, and customer behaviour.
+- RFM customer segmentation with Silhouette Score comparison.
+- Chronological late-delivery model evaluation.
+- A time-based future-purchase feasibility experiment.
+- Monthly revenue forecasting with incomplete-month detection.
+- Historical customer-value tiers and category co-purchase recommendations.
+- Ten Streamlit pages with filters, downloads, empty states, cached data loading, and saved-model inference.
+- Automated unit and integration tests.
 
 ## Repository Structure
 
 ```text
-app/                    Streamlit entry point, pages, and reusable components
-data/raw/               User-provided source CSVs (Git-ignored)
-data/processed/core/    Reproducible large intermediate tables (Git-ignored)
-data/processed/dashboard/ Compact deployment-ready artifacts
-models/                 Persisted fitted models
-notebooks/              Four ordered analysis notebooks
-reports/model_results/  Validation, metrics, and pipeline result JSON
-scripts/                Raw-data profiling utility
-sql/                    PostgreSQL schema and 30 analytical queries
-src/                    ETL, analytics, modelling, database, and utilities
-tests/                  Unit and integration tests
-run_pipeline.py         End-to-end orchestration
+app/                       Streamlit entry point, pages, and components
+data/raw/                  User-provided Olist CSVs (Git-ignored)
+data/processed/core/       Reproducible intermediate tables (Git-ignored)
+data/processed/dashboard/  Compact files used by the deployed dashboard
+models/                    Saved fitted models
+notebooks/                 Four ordered analysis notebooks
+reports/model_results/     Validation summaries and model metrics
+scripts/                   Raw-data profiling utility
+sql/                       PostgreSQL schema and 30 analytical queries
+src/                       ETL, analytics, modelling, database, and utilities
+tests/                     Unit and integration tests
+run_pipeline.py            End-to-end pipeline entry point
 ```
 
-## Data Pipeline
+## Pipeline
 
-`python run_pipeline.py` performs the following:
+Run:
 
-1. Verifies and validates all nine raw files.
-2. Parses dates and applies context-aware cleaning without overwriting raw data.
-3. Builds ZIP, item, payment, review, and order-context aggregates.
-4. Constructs exactly one row per order and one row per `customer_unique_id`.
-5. Reconciles raw and aggregated merchandise and payment totals.
-6. Creates customer, seller, product, cohort, delivery, state, payment, and monthly outputs.
-7. Trains segmentation, delivery-risk, retention, and forecasting models.
-8. Creates historical value and recommendation outputs.
-9. Persists compact dashboard Parquet/CSV files and Joblib models.
-10. Optionally initializes and loads PostgreSQL only when explicitly enabled.
+```bash
+python run_pipeline.py
+```
 
-The public dashboard never loads the million-row raw geolocation table and never retrains a model.
+The pipeline:
 
-## SQL Analytics
+1. validates all nine raw files;
+2. parses dates and cleans data without changing the raw sources;
+3. builds ZIP, item, payment, review, and order-context aggregates;
+4. creates one row per order and one row per `customer_unique_id`;
+5. reconciles raw and aggregated merchandise and payment totals;
+6. creates the analytical tables and dashboard files;
+7. trains and saves the segmentation, delivery-risk, retention, and forecasting models; and
+8. optionally loads PostgreSQL when `LOAD_POSTGRES=true`.
 
-`sql/schema.sql` defines normalized PostgreSQL source tables, verified natural/composite keys, a surrogate review row key, foreign keys, and focused indexes. `sql/analytics_queries.sql` and `sql/business_questions.sql` contain 30 business queries covering revenue, AOV, growth, categories, sellers, states, repeat behavior, payments, delivery, reviews, concentration, diversity, ranking, and cohorts.
+The Streamlit app reads compact files from `data/processed/dashboard/` and saved files from `models/`. It never loads the million-row geolocation source or retrains a model.
 
-## Machine Learning
+## Machine-Learning Results
 
 ### Customer segmentation
 
-K-Means was evaluated for K=2 through K=6 on log-transformed, standardized Recency, Frequency, and Monetary features. **K=2** was selected with a **0.706 Silhouette Score**, segmenting 93,358 customers with delivered purchases into High Value and Low Engagement profiles.
+K-Means was evaluated for K=2 through K=6 on log-transformed and standardized Recency, Frequency, and Monetary features. **K=2** achieved the best Silhouette Score, **0.706**, across 93,358 customers with delivered purchases. The resulting profiles are labelled High Value and Low Engagement.
 
 ### Late-delivery risk
 
-Target: delivered after the order's estimated delivery date. Features are restricted to purchase/approval-time information. A chronological 80/20 split produced 77,176 training rows and 19,294 test rows beginning 2018-05-26.
+The target is whether a delivered order arrived after its estimated delivery date. Preprocessing is fitted only on training data, and the split is chronological: 77,176 training rows and 19,294 test rows, with the test period starting on 2018-05-26.
 
 | Model | Precision | Recall | F1 | ROC-AUC | PR-AUC |
 |---|---:|---:|---:|---:|---:|
@@ -129,19 +137,46 @@ Target: delivered after the order's estimated delivery date. Features are restri
 | **Decision Tree** | **0.104** | **0.448** | **0.169** | **0.688** | **0.121** |
 | Random Forest | 0.085 | 0.138 | 0.106 | 0.617 | 0.075 |
 
-The Decision Tree was selected by F1, with PR-AUC as the tie-breaker. Its modest precision is reported honestly; the result is a risk-ranking demonstration, not a guarantee.
+The Decision Tree is selected by F1, with PR-AUC as the tie-breaker. Precision is low, so I treat this as a risk-ranking demonstration rather than a production prediction system.
 
-### Retention / future purchase
+### Future-purchase feasibility
 
-Olist has no churn label. Customers observed through 2018-02-28 were labelled positive only if they purchased during 2018-03-01 to 2018-08-31. The positive class contained 654 of 55,525 customers (1.18%). A transparent Logistic Regression feasibility model reached ROC-AUC 0.614 and PR-AUC 0.032, but precision was only 0.017. The dashboard explicitly warns that this is not a production churn model.
+Olist does not provide a churn label. Customers observed through 2018-02-28 are labelled positive only if they purchased from 2018-03-01 to 2018-08-31. The positive class contains 654 of 55,525 customers (1.18%). Logistic Regression reaches ROC-AUC 0.614 and PR-AUC 0.032, but precision is only 0.017. The result is retained to show the limitation of modelling an extremely sparse target; it is not presented as a production churn model.
 
-### Sales forecast
+### Monthly revenue forecast
 
-September and October 2018 contain only 16 and 4 raw orders, so they are marked partial and excluded. A four-month chronological validation window compared last-value, three-month moving average, seasonal naive, and trend/seasonality models. **Last Value Naive** performed best with MAE **R$ 41,682.46**, RMSE **R$ 62,797.90**, and MAPE **4.87%**.
+September and October 2018 contain only 16 and 4 raw orders, so the pipeline marks them as partial months and excludes them from model evaluation. A four-month chronological validation window compares last-value, three-month moving-average, seasonal-naive, and trend/seasonality approaches. **Last Value Naive** performs best with MAE **R$ 41,682.46**, RMSE **R$ 62,797.90**, and MAPE **4.87%**.
+
+## Verified Full-Dataset KPIs
+
+| KPI | Result |
+|---|---:|
+| Delivered merchandise revenue | **R$ 13,221,498.11** |
+| Delivered orders | **96,478** |
+| Delivered unique customers | **93,358** |
+| Average order value | **R$ 137.04** |
+| Items sold | **110,197** |
+| Average review score | **4.16 / 5** |
+| Average delivery time | **12.56 days** |
+| Late-delivery rate | **8.11%** |
+| Repeat-customer rate | **3.12%** |
+| Canceled or unavailable rate | **1.24%** |
+
+## Selected Business Findings
+
+- At item level, Health Beauty generated **R$ 1,233,131.72**, or **9.3%** of delivered merchandise revenue.
+- São Paulo (SP) generated **R$ 5,067,633.16**, or **38.3%** of delivered merchandise revenue.
+- **2,997 of 96,096** customer identities placed more than one order.
+- Late deliveries averaged a review score of **2.57**, compared with **4.29** for on-time or early deliveries. This is an association, not proof of causation.
+- Delivered freight was **16.6%** of merchandise revenue.
+- Credit card was the dominant payment type for **72,785** delivered orders.
+- November 2017 was the highest complete month, with **R$ 987,765.37** in merchandise revenue.
+- The top 10 sellers contributed **13.3%** of delivered merchandise revenue.
+- **1,234** orders were canceled or unavailable.
 
 ## Dashboard
 
-Run with `streamlit run app/app.py`. Pages:
+The deployed app contains ten pages:
 
 1. Executive Overview
 2. Sales Analytics
@@ -154,66 +189,33 @@ Run with `streamlit run app/app.py`. Pages:
 9. Sales Forecast
 10. Model Performance
 
-## Model Results
+The Executive Overview filters its order-level charts by purchase date, customer state, and primary category. Product Analytics reports item-level category results. Keeping these two views labelled separately avoids mixing order-level and item-level category revenue.
 
-Canonical full-dataset results:
+## Run Locally
 
-- Delivered merchandise revenue: **R$ 13,221,498.11**
-- Delivered orders: **96,478**
-- Delivered unique customers: **93,358**
-- Average order value: **R$ 137.04**
-- Items sold: **110,197**
-- Average review score: **4.16/5**
-- Average delivery time: **12.56 days**
-- Late-delivery rate: **8.11%**
-- Repeat-customer rate: **3.12%**
-- Canceled/unavailable rate: **1.24%**
-
-## Key Business Insights
-
-- Health Beauty generated R$ 1,233,131.72, 9.3% of delivered merchandise revenue.
-- São Paulo (SP) generated R$ 5,067,633.16, 38.3% of revenue.
-- Only 2,997 of 96,096 durable customers had more than one order identity.
-- Late deliveries averaged a 2.57 review score versus 4.29 for on-time/early deliveries; this is association, not causation.
-- Delivered freight equaled 16.6% of merchandise revenue.
-- Credit card was the dominant method for 72,785 delivered orders.
-- November 2017 was the highest complete month at R$ 987,765.37.
-- The top 10 sellers contributed 13.3% of delivered merchandise revenue.
-- 1,234 orders were canceled or unavailable.
-
-## Installation
-
-```bash
-python -m venv .venv
-```
-
-Windows PowerShell:
+Create and activate a virtual environment:
 
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-macOS/Linux:
+On macOS or Linux, activate it with `source .venv/bin/activate` instead.
 
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-## Running Locally
+Build the artifacts, run the tests, and start the dashboard:
 
 ```bash
 python run_pipeline.py
-pytest
+python -m pytest -q
 streamlit run app/app.py
 ```
 
-If the compact dashboard artifacts and model files are already present, the dashboard can start without the raw CSVs.
+If the tracked dashboard artifacts and saved models are already present, the app can start without the raw CSV files.
 
-## PostgreSQL Setup
+## Optional PostgreSQL Load
 
-Copy `.env.example` to `.env`, provide credentials, and explicitly enable the load:
+Copy `.env.example` to `.env`, provide your local credentials, and explicitly enable the load:
 
 ```env
 DB_HOST=localhost
@@ -224,30 +226,37 @@ DB_PASSWORD=your_password
 LOAD_POSTGRES=true
 ```
 
-Then run `python run_pipeline.py`. Without credentials—or with `LOAD_POSTGRES=false`—the local pipeline and dashboard remain fully functional using Parquet artifacts.
+Then run `python run_pipeline.py`. Without credentials, or with `LOAD_POSTGRES=false`, the pipeline and dashboard continue to work with local files.
 
 ## Deployment
 
-1. Push the repository to GitHub, including `data/processed/dashboard/` and `models/`.
-2. Confirm raw CSVs and `.env` are not committed.
-3. In Streamlit Community Cloud, create an app from the repository.
-4. Set the entry point to `app/app.py`.
-5. Use a supported Python 3.12 runtime and deploy.
-6. PostgreSQL secrets are not required for the public dashboard.
+1. Push the repository to GitHub with `data/processed/dashboard/` and `models/` included.
+2. Confirm that raw CSV files, `.env`, and `.streamlit/secrets.toml` are not committed.
+3. In Streamlit Community Cloud, select the repository and the `main` branch.
+4. Set the entry point to `app/app.py` and deploy.
+
+The public dashboard does not require PostgreSQL credentials.
+
+## Technology
+
+- **Data and analysis:** Python, Pandas, NumPy, Matplotlib, Seaborn, Plotly
+- **Machine learning:** Scikit-learn, Joblib
+- **Storage and SQL:** Parquet, PyArrow, PostgreSQL, SQLAlchemy
+- **Application and testing:** Streamlit, Pytest
 
 ## Limitations
 
-- Olist is historical marketplace data, not a live commerce feed.
-- Repeat purchasing is sparse; retention predictions have low precision.
-- The delivery model uses available order-context features but lacks external carrier, route, weather, and live operational data.
-- Seller history is not used as a model feature because future-safe rolling history would require more careful online feature management.
-- The forecast has a short monthly history and should be treated as a scenario.
-- Category recommendations measure co-purchase frequency, not offline recommendation accuracy.
+- Olist is a historical marketplace dataset, not a live commerce feed.
+- Repeat purchasing is sparse, which limits future-purchase model precision.
+- The delivery model does not include carrier events, traffic, weather, route, or inventory data.
+- Seller history is excluded from delivery-risk features because a future-safe rolling feature requires a stricter online feature process.
+- The monthly history is short, so the forecast should be treated as a baseline scenario.
+- Category recommendations are based on co-purchase frequency and do not have offline ranking evaluation.
 
-## Future Improvements
+## Next Steps
 
-- Add truly time-aware historical seller performance features.
-- Validate delivery models across multiple rolling temporal folds.
-- Extend cohort and retention analysis with a longer observation horizon.
+- Add rolling, time-safe seller performance features.
+- Validate delivery models with multiple chronological folds.
+- Extend retention and cohort analysis with a longer observation period.
 - Add carrier, route, inventory, campaign, and acquisition-channel data.
-- Add CI with pipeline smoke tests and deployment artifact-size checks.
+- Add CI checks for tests, dashboard startup, and deployment artifact sizes.
