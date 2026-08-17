@@ -2,6 +2,8 @@
 
 import importlib
 import json
+import subprocess
+import sys
 
 import joblib
 import pandas as pd
@@ -71,6 +73,30 @@ def test_all_dashboard_page_modules_import():
 def test_main_application_imports_without_running_server():
     module = importlib.import_module("app.app")
     assert callable(module.main)
+
+
+def test_streamlit_entrypoint_can_load_when_named_app():
+    command = """
+import importlib.util
+import sys
+from pathlib import Path
+
+path = Path('app/app.py').resolve()
+spec = importlib.util.spec_from_file_location('app', path)
+module = importlib.util.module_from_spec(spec)
+sys.modules['app'] = module
+spec.loader.exec_module(module)
+assert callable(module.main)
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", command],
+        cwd=ROOT_DIR,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_streamlit_application_executes_without_exception():

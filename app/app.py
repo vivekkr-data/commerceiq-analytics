@@ -8,6 +8,13 @@ from pathlib import Path
 import streamlit as st
 
 
+APP_DIR = Path(__file__).resolve().parent
+# Streamlit can execute ``app/app.py`` with the module name ``app``.  In that
+# mode Python treats this file as a plain module, which would otherwise shadow
+# the real ``app`` package and break imports such as ``app.components``.
+if __name__ == "app" and "__path__" not in globals():
+    __path__ = [str(APP_DIR)]
+
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) in sys.path:
     sys.path.remove(str(ROOT_DIR))

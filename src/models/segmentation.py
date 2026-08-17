@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
+from threadpoolctl import threadpool_limits
 
 from src.config import RANDOM_STATE
 
@@ -38,6 +39,7 @@ def _segment_names(cluster_count: int) -> list[str]:
     return names[cluster_count]
 
 
+@threadpool_limits.wrap(limits=1)
 def train_segmentation(
     customer_features: pd.DataFrame,
     model_path: Path,
