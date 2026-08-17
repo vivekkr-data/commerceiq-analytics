@@ -1,7 +1,9 @@
 """KPI definition tests."""
 
 import pytest
+import pandas as pd
 
+from src.analytics.insights import generate_filtered_business_insights
 from src.analytics.kpis import (
     average_delivery_days,
     average_order_value,
@@ -54,3 +56,28 @@ def test_repeat_customer_rate(sample_customer_features):
 
 def test_cancellation_rate_includes_unavailable(sample_order_level):
     assert cancellation_rate(sample_order_level) == 0.5
+
+
+def test_filtered_business_insights_use_only_selected_orders():
+    selected = pd.DataFrame(
+        {
+            "order_id": ["o1", "o2", "o3"],
+            "customer_unique_id": ["c1", "c1", "c2"],
+            "order_status": ["delivered", "delivered", "canceled"],
+            "merchandise_revenue": [100.0, 50.0, 999.0],
+            "product_category": ["Art", "Air Conditioning", "Other"],
+            "customer_state": ["AM", "AM", "SP"],
+            "late_delivery": pd.Series([0, 1, pd.NA], dtype="Int64"),
+            "average_review_score": [5.0, 3.0, None],
+            "total_freight_value": [10.0, 5.0, 100.0],
+            "dominant_payment_type": ["credit_card", "credit_card", "voucher"],
+        }
+    )
+
+    insights = generate_filtered_business_insights(selected)
+    by_theme = {row["theme"]: row["insight"] for row in insights}
+
+    assert "R$ 150.00 across 2 delivered orders" in by_theme["Scale"]
+    assert "AM generated the most" in by_theme["Geography"]
+    assert "1 of 1 unique customers" in by_theme["Customer retention"]
+    assert "Credit Card" in by_theme["Payments"]

@@ -6,7 +6,8 @@ import streamlit as st
 from app.components.cards import metric_row
 from app.components.charts import PRIMARY, style_figure
 from app.components.filters import filter_orders
-from app.components.helpers import download_csv, format_brl, format_percent, load_csv, load_parquet, page_header
+from app.components.helpers import download_csv, format_brl, format_percent, load_parquet, page_header
+from src.analytics.insights import generate_filtered_business_insights
 
 
 def render() -> None:
@@ -67,7 +68,10 @@ def render() -> None:
         st.plotly_chart(style_figure(figure, 460), width="stretch")
 
     st.subheader("Key Business Insights")
-    insights = load_csv("business_insights")
-    for row in insights.head(8).itertuples():
-        st.markdown(f'<div class="insight-card"><strong>{row.theme}</strong><br>{row.insight}</div>', unsafe_allow_html=True)
+    insights = generate_filtered_business_insights(filtered)
+    for row in insights[:8]:
+        st.markdown(
+            f'<div class="insight-card"><strong>{row["theme"]}</strong><br>{row["insight"]}</div>',
+            unsafe_allow_html=True,
+        )
     download_csv(delivered, "Download filtered sales data", "filtered_sales.csv", "overview_download")
