@@ -18,16 +18,27 @@ def filter_orders(data: pd.DataFrame, key_prefix: str) -> pd.DataFrame:
     )
     states = sorted(data["customer_state"].dropna().unique().tolist())
     selected_states = st.sidebar.multiselect(
-        "Customer state", states, default=states, key=f"{key_prefix}_states"
+        "Customer state",
+        states,
+        default=[],
+        placeholder="All states",
+        help="Leave blank to include every customer state.",
+        key=f"{key_prefix}_states",
     )
     categories = sorted(data["product_category"].dropna().unique().tolist())
     selected_categories = st.sidebar.multiselect(
-        "Primary category", categories, default=categories, key=f"{key_prefix}_categories"
+        "Primary category",
+        categories,
+        default=[],
+        placeholder="All categories",
+        help="Leave blank to include every product category.",
+        key=f"{key_prefix}_categories",
     )
-    filtered = data[
-        data["customer_state"].isin(selected_states)
-        & data["product_category"].isin(selected_categories)
-    ].copy()
+    filtered = data.copy()
+    if selected_states:
+        filtered = filtered[filtered["customer_state"].isin(selected_states)]
+    if selected_categories:
+        filtered = filtered[filtered["product_category"].isin(selected_categories)]
     if isinstance(selected_dates, (tuple, list)) and len(selected_dates) == 2:
         start, end = pd.Timestamp(selected_dates[0]), pd.Timestamp(selected_dates[1]) + pd.Timedelta(days=1)
         filtered = filtered[
